@@ -1,0 +1,38 @@
+<div class="sidebar">
+  <!-- Menu button stays at the top -->
+  <button class="sidebar-btn" id="menuBtn" title="Menu">
+    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor">
+      <path d="M4 6h16v2H4zM4 11h16v2H4zM4 16h16v2H4z"/>
+    </svg>
+  </button>
+
+  <button class="sidebar-btn" id="favoritesBtn" title="Favorites">⭐</button>
+  <button class="sidebar-btn" id="themeToggle" title="Toggle Theme">🌙</button>
+
+<!-- Group other buttons in the middle -->
+  <div class="sidebar-buttons">
+    <button class="sidebar-btn" id="homeBtn" title="Home">🏠</button>
+    <button class="sidebar-btn" title="Add App">➕</button>
+  </div>
+
+  <!-- Settings button at the bottom -->
+  <div class="sidebar-bottom">
+    <button class="sidebar-btn" id="settingsBtn" title="Settings">⚙️</button>
+  </div>
+</div>
+
+<!-- Expanded panel (hidden by default) -->
+<div class="sidebar-expand" id="sidebarExpand">
+  <div class="expand-content">
+    <p>Extra menu content goes here...</p>
+    <p>Links / Shortcuts / Settings</p>
+  </div>
+</div>
+
+<!-- Settings mini panel (hidden by default) -->
+<div class="settings-panel" id="settingsPanel">
+  <div class="settings-content">
+    <h3>Settings</h3>
+    <p>Theme toggle, preferences, and shortcuts go here.</p>
+  </div>
+</div>

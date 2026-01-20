@@ -1,0 +1,716 @@
+:root{
+  --bg:#0f172a; --card:#111827; --muted:#1f2937; --text:#e5e7eb; --sub:#9ca3af; --brand:#4f46e5; --danger:#ef4444; --ok:#10b981;
+}
+*{box-sizing:border-box}
+body{margin:0;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,"Helvetica Neue",Arial,sans-serif;background:linear-gradient(180deg,#0b1222,#0f172a 20%);color:var(--text);}
+header {
+  margin-left: 60px; /* matches sidebar width */
+  padding: 0 18px;   /* keep existing horizontal padding */
+  position: sticky;
+  top: 0;
+  background: rgba(15,23,42,.7);
+  backdrop-filter: blur(8px);
+  border-bottom: 1px solid #1f2937;
+  z-index: 10;
+}
+
+.wrap{max-width:1100px;margin:0 auto;padding:18px}
+h1{font-size:clamp(20px,2.4vw,28px);margin:0 0 6px}
+h1 {
+  text-align: center;
+}
+.footer {
+  text-align: center;
+}
+.toolbar {
+  display: flex;
+  justify-content: space-between; /* left & right split */
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.toolbar-left {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.toolbar-right {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+input[type="text"],input[type="url"]{background:#0b1020;color:var(--text);border:1px solid #263246;border-radius:10px;padding:10px 12px;outline:none;min-width:0}
+input::placeholder{color:#6b7280}
+button{cursor:pointer;border:none;border-radius:10px;padding:10px 14px;font-weight:600}
+.btn{background:var(--brand);color:white}
+.btn.secondary{background:#263246;color:#c0c6d6}
+.btn.danger{background:var(--danger)}
+.btn.ok{background:var(--ok)}
+main{max-width:1100px;margin:20px auto;padding:0 18px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:14px}
+.card{background:var(--card);border:1px solid #222b3d;border-radius:16px;padding:14px;display:flex;flex-direction:column;gap:10px;transition:transform .06s ease, box-shadow .2s ease;user-select:none}
+.card:hover{transform:translateY(-2px);box-shadow:0 8px 28px rgba(0,0,0,.35)}
+.card.dragging{opacity:.6;outline:2px dashed #334155}
+.app-top{display:flex;align-items:center;gap:10px}
+.app-top img{width:28px;height:28px;border-radius:6px;background:#0b1020}
+.app-name{font-weight:700;line-height:1.2}
+.app-url{font-size:12px;color:var(--sub);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.actions{display:flex;gap:8px;margin-top:auto}
+.empty{opacity:.75;padding:28px;border:1px dashed #334155;border-radius:14px;text-align:center}
+.row{display:flex;gap:10px;flex-wrap:wrap}
+dialog{border:none;border-radius:16px;padding:0;background:#0f172a;color:var(--text);width:min(520px,92vw)}
+dialog::backdrop{background:rgba(2,6,23,.6)}
+.modal-head{display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #1f2937;padding:14px 16px}
+.modal-body{padding:16px}
+.modal-actions{display:flex;justify-content:flex-end;gap:8px;border-top:1px solid #1f2937;padding:12px 16px}
+.hint{font-size:12px;color:var(--sub)}
+.footer{max-width:1100px;margin:30px auto 60px;padding:0 18px;color:#94a3b8;font-size:12px;text-align:center}
+.tag{display:inline-flex;gap:6px;align-items:center;background:#0b1020;border:1px solid #223049;color:#c7d2fe;border-radius:999px;padding:6px 10px;font-size:12px}
+
+/* Container holding all categories */
+
+#grid {
+  display: flex;           /* categories side by side */
+  gap: 20px;               /* space between categories */
+  align-items: flex-start;
+  flex-wrap: wrap;         /* allows categories to wrap on small screens */
+   margin-left: 120px;    /* current space from sidebar */
+  padding: 0;
+}
+
+/* Each category column */
+.category-column {
+  display: flex;
+  flex-direction: column;  /* stack apps vertically */
+  gap: 20px;               /* vertical space between apps */
+}
+
+/* Category header */
+.category-header {
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin: 0 0 10px 0;      /* space between header and apps */
+  color: var(--sub);
+}
+
+/* Cards inside category columns */
+.category-column .card {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  height: auto;
+  width: 200px;
+  align-self: start;
+}
+
+/* Category input styling */
+#category {
+  background: #0b1020;             /* match input background */
+  color: var(--text);              /* match text color */
+  border: 1px solid #263246;       /* same border as other inputs */
+  border-radius: 10px;
+  padding: 10px 8px;
+  outline: none;
+  min-width: 0;
+  width: 35%;                     /* fill modal width */
+  margin-bottom: 2px;
+}
+
+/* Optional: hover/focus effect */
+#category:focus {
+  border-color: var(--brand);
+  box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.3);
+}
+
+/* Optional: if using a dropdown select instead of input */
+#category-select {
+  background: #0b1020;
+  color: var(--text);
+  border: 1px solid #263246;
+  border-radius: 10px;
+  padding: 10px 12px;
+  outline: none;
+  min-width: 0;
+  width: 100%;
+}
+#category-select:focus {
+  border-color: var(--brand);
+  box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.3);
+}
+
+/* Buttons inside the dialog */
+/* Primary (Save) */
+#appDialog .btn.ok {
+  background: rgb(44, 248, 44);
+  color: white;
+}
+
+/* Secondary (Close, Add Category) */
+#appDialog .btn.secondary {
+  background: #e5e7eb;
+  color: #111827;
+}
+
+/* Danger (Delete Category / Delete App) */
+#appDialog .btn.danger {
+  background: #dc2626;
+  color: white;
+}
+
+.sidebar {
+  position: fixed;
+  top: 20px;
+  left:20px;
+  height: 90%;
+  width: 60px; 
+  background: var(--sub);
+  border-right: 1px solid #222b3d;
+  border-radius: 100px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-top: 20px; /* adjust this so icons align with categories */
+  gap: 14px;
+  z-index: 20;
+  overflow: hidden;        /* hides text when collapsed */
+  transition: width 0.3s ease;  /* smooth expand */
+}
+
+/* Sidebar extension (separate floating panel) */
+.sidebar-expand {
+  position: fixed;
+  top: 20px;
+  left: 100px; /* little gap after sidebar (60px + 20px gap) */
+  height: 90%;
+  width: 270px;
+  background: var(--muted);
+  border-radius: 20px;
+  padding: 20px;
+  opacity: 0;
+  transform: translateX(-20px);
+  pointer-events: none;
+  transition: all 0.3s ease;
+  z-index: 15;
+}
+
+.sidebar-expand.active {
+  opacity: 1;
+  transform: translateX(0);
+  pointer-events: auto;
+}
+
+/* When panel is active → shift whole site */
+header,
+main,
+.footer {
+  transition: margin-left 0.3s ease;
+  margin-left: 60px; /* default (just sidebar width) */
+}
+
+header.shifted,
+main.shifted,
+.footer.shifted {
+  margin-left: 320px; /* sidebar (60px) + gap (20px) + panel (270px) */
+}
+
+.sidebar-btn {
+  background: none;
+  border: none;
+  color: var(--text);
+  font-size: 20px;
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 12px;
+  transition: background 0.2s;
+}
+
+/* Favorite button styling */
+.fav-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  align-items: center;
+  font-size: 18px;
+  color: gold;
+}
+
+/* Push only the settings button to the bottom */
+.sidebar-bottom {
+  margin-top: auto; /* pushes it down */
+  margin-bottom: 60px; /* space from bottom */
+}
+
+/* Group for the other buttons */
+.sidebar-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin-top: 20px; /* push other buttons below menu */
+}
+
+/* Text labels hidden by default */
+.sidebar-btn span {
+  display: none;
+  font-size: 14px;
+}
+
+/* Show labels only when expanded */
+.sidebar.expanded .sidebar-btn span {
+  display: inline;
+}
+
+/* Settings panel - hidden initially */
+.settings-panel {
+  position: fixed;
+  bottom: 100px;          /* distance from bottom of screen */
+  left: 100px;  
+  height: 45%;          /* sidebar width (60px) + 20px gap */
+  width: 220px;       /* panel width */
+  max-width: 90vw;
+  background: var(--sub);
+  border: 1px solid #222b3d;
+  border-radius: 16px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+  color: var(--text);     /* same as main text */
+  z-index: 50;                /* above everything else */
+  padding: 15px;
+  display: none;              /* hidden by default */
+  flex-direction: column;
+  gap: 10px;
+  transition: transform 0.3s ease, opacity 0.3s ease;
+}
+
+/* Optional: animate panel */
+.settings-panel.show {
+  display: flex;
+  transform: translateY(0);
+  opacity: 1;
+}
+
+.settings-panel.hide {
+  transform: translateY(20px);
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* Content styling */
+.settings-content h3 {
+  margin: 0;
+  font-size: 1.1rem;
+}
+
+.settings-content p {
+  font-size: 0.9rem;
+  margin: 0.3rem 0;
+}
+
+body.light #settingsPanel {
+  background: #eae8e0;
+  color: #111827;
+  border: 1px solid #111;
+}
+
+body.dark #settingsPanel {
+  background: #1f2937;
+  color: #f9fafb;
+  border: 1px solid #505a6a;
+}
+
+/* Light theme hover (already exists) */
+body.light .sidebar-btn:hover {
+  background-color: var(--muted); /* subtle darker background */
+}
+
+/* Dark theme hover */
+body.dark .sidebar-btn:hover {
+  background-color: rgba(255,255,255,0.1); /* subtle lighter background */
+}
+
+/* Optional: move remaining buttons lower in the sidebar */
+.sidebar > .sidebar-btn {
+  margin-top: 10px;
+}
+
+.pinned-divider {
+  border: none;
+  border-top: 1px dashed #ccc;
+  margin: 6px 0;
+}
+
+.card .btn {
+  padding: 4px 15px;
+  font-size: 12px;
+}
+
+.category-actions button {
+  font-size: 0.8rem;
+  padding: 11px 8px;
+  border-radius: 10px;
+  margin-bottom: 2px;
+}
+
+/* Light Theme */
+body.light {
+  background: #fefeff;
+  color: #1d2028;
+}
+
+body.light .card {
+  background: #eae8e0;
+  border: 1px solid #1d2028;
+}
+
+/* Dark Theme */
+body.dark {
+  background: #111827;
+  color: #f9fafb;
+}
+
+body.dark .card {
+  background: #1f2937;
+  border: 1px solid #374151;
+}
+
+/* Toolbar & Sidebar adjustments */
+body.dark header,
+body.dark .sidebar {
+  background: #1f2937;
+  border: 1px solid #505a6a;
+}
+
+body.light header,
+body.light .sidebar {
+  background: #eae8e0;
+  border: 1px solid #1d2028;
+}
+
+body.dark .btn {
+  background: #374151;
+  color: #f9fafb;
+}
+
+body.light .btn {
+  background: #fefeff;
+  color: #111827;
+}
+
+/* Sidebar-extention theme change*/
+/* Light theme */
+.sidebar-expand {
+  background-color: #eae8e0;
+  color: #111;
+}
+
+/* Dark theme */
+body.dark .sidebar-expand {
+  background-color: #1f2937;
+  color: #eee;
+}
+
+
+/* Theme toggle button animation */
+#themeToggle {
+  transition: transform 0.4s ease, opacity 0.4s ease;
+}
+
+#themeToggle.animate {
+  transform: rotate(360deg) scale(1.2);
+  opacity: 0.7;
+}
+
+/* For the weather bar */
+.weather-bar {
+  position: relative; 
+  justify-content: center; /* horizontal center */
+  align-items: center;     /* vertical center */
+  display: inline-flex;
+  gap: 8px;
+  padding: 8px 14px;
+  border-radius: 14px;
+  font-size: 1.1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.weather-container {
+  display: flex;
+  justify-content: center;  /* horizontal */
+  align-items: center;      /* vertical */
+  height: 200px;            /* or any container height */
+}
+
+.weather-bar:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+}
+
+body.light .weather-bar {
+  background: #f3f4f6;
+  color: #111827;
+}
+
+body.dark .weather-bar {
+  background: #374151;
+  color: #f9fafb;
+}
+
+#weatherIcon {
+  font-size: 1.3rem;
+}
+
+/*For page 2---------------------------*/
+
+.blog-container {
+  display: grid;
+  gap: 20px;
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 10px;
+}
+
+.blog-post {
+  border-radius: 16px;
+  padding: 20px;
+  transition: transform 0.2s ease, box-shadow 0.3s ease;
+}
+
+.blog-post:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 6px 14px rgba(0,0,0,0.15);
+}
+
+body.light .blog-post {
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  color: #111827;
+}
+
+body.dark .blog-post {
+  background: #1f2937;
+  border: 1px solid #374151;
+  color: #f9fafb;
+}
+
+.post-title {
+  margin: 0 0 8px;
+  font-size: 1.5rem;
+}
+
+.post-date {
+  font-size: 0.85rem;
+  opacity: 0.7;
+  margin-bottom: 12px;
+}
+
+.post-content {
+  font-size: 1rem;
+  line-height: 1.5;
+  margin-bottom: 12px;
+}
+
+.read-more {
+  font-weight: 600;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+body.light .read-more {
+  color: #2563eb;
+}
+
+body.dark .read-more {
+  color: #93c5fd;
+}
+
+.read-more:hover {
+  text-decoration: underline;
+}
+
+/*For the weather forecast widget*/
+
+#weatherWidget {
+  padding: 15px;
+  border-radius: 16px;
+  margin: 20px auto;
+  max-width: 500px; /* wider for 5-day view */
+  text-align: center;
+  transition: background 0.3s ease, box-shadow 0.3s ease;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+}
+
+/* Light theme */
+body.light #weatherWidget {
+  background: #eae8e0;
+  border: 1px solid #1d2028;
+  color: #111827;
+}
+
+/* Dark theme */
+body.dark #weatherWidget {
+  background: #0b1020;
+  border: 1px solid #374151;
+  color: #f9fafb;
+}
+
+.forecast-grid {
+  display: flex;
+  gap: 12px;
+  margin-top: 15px;
+  overflow-x: auto; /* allow scrolling on small screens */
+  scrollbar-width: thin;
+  padding-bottom: 6px;
+}
+
+.forecast-day {
+  flex: 1;
+  min-width: 80px;
+  text-align: center;
+  padding: 10px;
+  border-radius: 12px;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  cursor: default;
+}
+
+.forecast-day:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 6px 14px rgba(0,0,0,0.15);
+}
+
+body.light .forecast-day {
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  color: #111827;
+}
+
+body.dark .forecast-day {
+  background: hsl(215, 28%, 17%);
+  border: 1px solid #374151;
+  color: #f9fafb;
+}
+
+.forecast-day .date {
+  font-size: 0.9rem;
+  font-weight: 600;
+  margin-bottom: 6px;
+}
+
+.forecast-day .icon {
+  font-size: 1.8rem;
+  margin: 6px 0;
+  transition: transform 0.3s ease;
+}
+
+.forecast-day:hover .icon {
+  transform: scale(1.2) rotate(5deg);
+}
+
+.forecast-day .temp {
+  font-size: 0.95rem;
+  font-weight: 500;
+}
+
+.blog-page #weatherWidget {
+  max-width: 800px;
+  margin: 2rem auto;
+  padding: 1.5rem;
+  border-radius: 16px;
+  background: var(--card-bg, #ffffff);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  transition: background 0.3s ease;
+}
+
+/* Today forecast */
+.blog-page .today-forecast {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-around;
+  margin-bottom: 1.5rem;
+  padding: 1rem;
+  background: rgba(255,255,255,0.06);
+  border-radius: 12px;
+  border: 1px solid #374151;
+}
+
+.blog-page body.dark .today-forecast {
+  background: rgba(255,255,255,0.08);
+}
+
+.today-temp {
+  font-size: 3rem;
+  font-weight: 700;
+}
+
+.today-icon {
+  font-size: 3rem;
+}
+
+.today-details {
+  text-align: center;
+  min-width: 150px;
+}
+
+.today-date, .today-description, .today-minmax {
+  margin: 0.2rem 0;
+}
+
+/* Upcoming days */
+.upcoming-forecast {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.forecast-day {
+  flex: 1 1 120px;
+  padding: 0.5rem;
+  text-align: center;
+  border-radius: 8px;
+  background: rgba(0,0,0,0.03);
+  transition: transform 0.2s ease, background 0.3s ease;
+}
+
+body.dark .forecast-day {
+  background: rgba(255,255,255,0.06);
+}
+
+.forecast-day:hover {
+  transform: translateY(-3px);
+}
+
+.forecast-date {
+  font-weight: 600;
+  margin-bottom: 0.3rem;
+}
+
+.forecast-icon {
+  font-size: 1.5rem;
+  margin-bottom: 0.3rem;
+}
+
+.forecast-temp {
+  font-size: 0.85rem;
+  color: #444;
+}
+
+body.dark .forecast-temp {
+  color: #ddd;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+

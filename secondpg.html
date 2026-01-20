@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Blog & News</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+
+<body class="blog-page">
+
+<header>
+  <div class="wrap">
+    <h1>Latest News & Updates</h1>
+    <div class="toolbar">
+      <div class="toolbar-left">
+        <input id="search" type="text" placeholder="Search apps…" aria-label="Search" />
+        <button class="btn secondary" id="returnBtn" style="display:none;">⟲ Return</button>
+      </div>
+      <div class="toolbar-right">
+        <button class="btn" id="addBtn">+ Add App</button>
+        <input id="importFile" type="file" accept="application/json" style="display:none" />
+        <button class="btn secondary" id="exportBtn">Export</button>
+        <span class="tag" id="countTag">0 apps</span>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- Sidebar placeholder -->
+<div id="sidebarContainer"></div>
+
+<main>
+  <section class="page-header">
+    <h1 class="page-title">Blogs & Posts for my app</h1>
+  </section>
+
+  <!-- Blog posts -->
+  <section class="blog-container">
+    <article class="blog-post">
+      <h2 class="post-title">Welcome to Our New Blog!</h2>
+      <p class="post-date">September 4, 2025</p>
+      <p class="post-content">
+        We’re excited to launch our blog section 🎉 Here we’ll share updates, new features, and tips.
+        Stay tuned for more content coming soon!
+      </p>
+      <a href="#" class="read-more">Read More →</a>
+    </article>
+
+    <article class="blog-post">
+      <h2 class="post-title">Theme Toggle Feature</h2>
+      <p class="post-date">August 30, 2025</p>
+      <p class="post-content">
+        You can now switch between Light 🌞 and Dark 🌙 themes. Your preference is saved automatically
+        for your next visit.
+      </p>
+      <a href="#" class="read-more">Read More →</a>
+    </article>
+  </section>
+
+<section class="forecast-section">
+    <h1 class="page-title">Forecast Section</h1>
+   <div id="weatherWidget" class="card">
+    <div class="loader" style="display:none;">Loading forecast...</div>
+  <!-- Today -->
+  <div class="today-forecast">
+    <div class="today-temp">--°C</div>
+    <div class="today-icon">❔</div>
+    <div class="today-details">
+      <p class="today-date">Loading...</p>
+      <p class="today-description">---</p>
+      <p class="today-minmax">Min --°C / Max --°C</p>
+    </div>
+  </div>
+
+  <!-- Upcoming days -->
+  <div class="upcoming-forecast">
+    <!-- Forecast days will be added here by JS -->
+  </div>
+</div>
+
+<!-- Load sidebar dynamically -->
+<script>
+fetch('sidebar.html')
+  .then(res => res.text())
+  .then(html => {
+    // Inject sidebar
+    document.getElementById('sidebarContainer').innerHTML = html;
+
+    // Now sidebar exists → safe to attach all listeners
+    initSidebar();
+  })
+  .catch(err => console.error("Sidebar load failed:", err));
+
+function initSidebar() {
+  console.log("Sidebar initialized!");
+
+  const menuBtn = document.getElementById('menuBtn');
+  const sidebarExpand = document.getElementById('sidebarExpand');
+  const homeBtn = document.getElementById('homeBtn');
+  const themeToggle = document.getElementById('themeToggle');
+  const favoritesBtn = document.getElementById('favoritesBtn');
+
+  const header = document.querySelector('header');
+  const mainContent = document.querySelector('main');
+  const footer = document.querySelector('.footer');
+
+  // Menu toggle
+  if (menuBtn && sidebarExpand) {
+    menuBtn.addEventListener('click', () => {
+      sidebarExpand.classList.toggle('active');
+      header?.classList.toggle('shifted');
+      mainContent?.classList.toggle('shifted');
+      footer?.classList.toggle('shifted');
+    });
+  }
+
+  // 🔹 Home button redirect
+  if (homeBtn) {
+    homeBtn.addEventListener('click', () => {
+      window.location.href = "index.html"; 
+    });
+  }
+
+  // Theme toggle
+  if (themeToggle) {
+    let currentTheme = localStorage.getItem("theme") || "light";
+    document.body.classList.add(currentTheme);
+    themeToggle.textContent = currentTheme === "dark" ? "🌙" : "☀️";
+
+    themeToggle.addEventListener("click", () => {
+      themeToggle.classList.add("animate");
+      setTimeout(() => {
+        themeToggle.classList.remove("animate");
+        document.body.classList.toggle(currentTheme);
+        currentTheme = currentTheme === "dark" ? "light" : "dark";
+        document.body.classList.add(currentTheme);
+        localStorage.setItem("theme", currentTheme);
+        themeToggle.textContent = currentTheme === "dark" ? "🌙" : "☀️";
+      }, 400);
+    });
+  }
+
+  // Favorites button
+  if (favoritesBtn) {
+    favoritesBtn.addEventListener("click", () => {
+      if (typeof renderFavorites === "function") renderFavorites();
+    });
+  }
+}
+</script>
+
+<script>
+// Forecast widget on second page
+function fetchForecast(lat, lon) {
+  const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&daily=temperature_2m_max,temperature_2m_min,weathercode&current_weather=true&timezone=auto`;
+
+  const widget = document.getElementById("weatherWidget");
+  if (!widget) return;
+
+  // Insert loader HTML before fetch
+  widget.innerHTML = `<div class="loader">Loading forecast...</div>`;
+
+  fetch(url)
+    .then(res => res.json())
+    .then(data => {
+      // Clear loader but keep widget div structure
+      widget.innerHTML = `
+        <div class="today-forecast">
+          <div class="today-temp">--°C</div>
+          <div class="today-icon">❔</div>
+          <div class="today-details">
+            <div class="today-date">Loading...</div>
+            <div class="today-minmax">Min --°C / Max --°C</div>
+          </div>
+        </div>
+        <div class="upcoming-forecast forecast-grid"></div>
+      `;
+
+      // Today's weather
+      const todayTemp = Math.round(data.current_weather.temperature);
+      const todayCode = data.current_weather.weathercode;
+      const todayMax = data.daily.temperature_2m_max[0];
+      const todayMin = data.daily.temperature_2m_min[0];
+      const todayDate = new Date(data.daily.time[0]).toLocaleDateString("en-US", { weekday: 'long', month:'short', day:'numeric' });
+      const todayIcon = getWeatherIcon(todayCode);
+
+      widget.querySelector(".today-temp").textContent = `${todayTemp}°C`;
+      widget.querySelector(".today-icon").textContent = todayIcon;
+      widget.querySelector(".today-date").textContent = todayDate;
+      widget.querySelector(".today-minmax").textContent = `Min ${todayMin}°C / Max ${todayMax}°C`;
+
+      // Upcoming days
+      const upcoming = widget.querySelector(".upcoming-forecast");
+      upcoming.innerHTML = ""; // clear any placeholder
+
+      for (let i = 1; i < 6; i++) {
+        const day = new Date(data.daily.time[i]).toLocaleDateString("en-US", { weekday: 'short' });
+        const min = data.daily.temperature_2m_min[i];
+        const max = data.daily.temperature_2m_max[i];
+        const icon = getWeatherIcon(data.daily.weathercode[i]);
+
+        const div = document.createElement("div");
+        div.className = "forecast-day";
+        div.innerHTML = `
+          <div class="forecast-date">${day}</div>
+          <div class="forecast-icon">${icon}</div>
+          <div class="forecast-temp">${min}°C / ${max}°C</div>
+        `;
+        upcoming.appendChild(div);
+      }
+    })
+    .catch(() => {
+      widget.innerHTML = `<div class="loader">Failed to load forecast.</div>`;
+    });
+}
+
+// Run if widget exists and geolocation available
+if (document.getElementById("weatherWidget") && navigator.geolocation) {
+  navigator.geolocation.getCurrentPosition(
+    pos => fetchForecast(pos.coords.latitude, pos.coords.longitude),
+    () => { document.getElementById("weatherWidget").textContent = "Location blocked."; }
+  );
+}
+</script>
+<script src="script.js"></script>
+</body>
+</html>
+

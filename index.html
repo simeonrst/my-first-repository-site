@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>My Application Hub</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header>
+    <div class="wrap">
+      <h1>My Application Hub</h1>
+     <div class="toolbar">
+  <div class="toolbar-left">
+    <input id="search" type="text" placeholder="Search apps…" aria-label="Search" />
+  </div>
+  <div class="toolbar-right">
+    <button class="btn" id="addBtn">+ Add App</button>
+    <input id="importFile" type="file" accept="application/json" style="display:none" />
+      <button class="btn secondary" id="exportBtn">Export</button>
+    <span class="tag" id="countTag">0 apps</span>
+  </div>
+</div>
+
+    </div>
+  </header>
+
+  <!-- Sidebar placeholder -->
+<div id="sidebarContainer"></div>
+
+<script>
+fetch('sidebar.html')
+  .then(response => response.text())
+  .then(html => {
+    document.getElementById('sidebarContainer').innerHTML = html;
+
+    // Attach theme toggle after sidebar loads
+    const themeToggle = document.getElementById("themeToggle");
+    // ...theme toggle code here...
+  });
+</script>
+
+  <main>
+    <div id="grid" class="grid"></div>
+    <div id="empty" class="empty" style="display:none">
+      No apps yet. Click <b>+ Add App</b> to get started.
+    </div>
+  </main>
+
+<!-- Compact Weather Bar -->
+  <div class="weather-container">
+<div id="weatherBar" class="weather-bar" onclick="goToForecastPage()">
+  <span id="weatherIcon">🌤️</span>
+  <span id="weatherTemp">--°C</span>
+  </div>
+</div>
+
+  <div class="footer">Data is stored locally in your browser.</div>
+
+  <!-- Modal -->
+  <dialog id="appDialog">
+    <form id="appForm" method="dialog">
+      <div class="modal-head">
+        <strong id="modalTitle">Add App</strong>
+        <button type="button" class="btn secondary" id="closeDialog">Close</button>
+      </div>
+      <div class="modal-body">
+        <div class="row">
+          <input id="name" type="text" placeholder="App name" required />
+          <input id="url" type="url" placeholder="App URL" required />
+        </div>
+        <div class="row" style="margin-top:10px">
+          <input id="icon" type="url" placeholder="Icon URL (optional)" />
+        </div>
+      </div>
+      <label>
+  Category:
+  <select id="category">
+    <option value="General">General</option>
+    <option value="Work">Work</option>
+    <option value="Social">Social</option>
+    <option value="Tools">Tools</option>
+  </select>
+</label>
+
+
+      <div class="modal-actions">
+        <button type="button" class="btn danger" id="deleteBtn" style="display:none">Delete</button>
+        <button class="btn ok" id="saveBtn">Save</button>
+      </div>
+    </form>
+  </dialog>
+
+  <!-- Load JavaScript last -->
+  <script src="script.js"></script>
+</body>
+</html>
